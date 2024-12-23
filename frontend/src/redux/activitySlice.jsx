@@ -1,43 +1,72 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from '../api';
+
+export const fetchActivities = createAsyncThunk(
+  'activity/fetchActivities',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await API.get('/activities');
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch activities');
+    }
+  }
+);
+
+export const createActivity = createAsyncThunk(
+  'activity/createActivity',
+  async (activityData, { rejectWithValue }) => {
+    try {
+      const { data } = await API.post('/activities', activityData);
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create activity');
+    }
+  }
+);
 
 const activitySlice = createSlice({
   name: 'activity',
   initialState: {
     activities: [],
     error: null,
+    loading: false,
   },
   reducers: {
-    setActivities(state, action) {
-      state.activities = action.payload;
+    clearError: (state) => {
+      state.error = null;
     },
-    addActivity(state, action) {
-      state.activities.push(action.payload);
-    },
-    setError(state, action) {
-      state.error = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch activities
+      .addCase(fetchActivities.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchActivities.fulfilled, (state, action) => {
+        state.activities = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchActivities.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      // Create activity
+      .addCase(createActivity.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createActivity.fulfilled, (state, action) => {
+        state.activities.push(action.payload);
+        state.loading = false;
+      })
+      .addCase(createActivity.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      });
   },
 });
 
-export const { setActivities, addActivity, setError } = activitySlice.actions;
-
-export const fetchActivities = () => async (dispatch) => {
-  try {
-    const { data } = await API.get('/activities');
-    dispatch(setActivities(data));
-  } catch (error) {
-    dispatch(setError(error.response?.data?.message || 'Failed to fetch activities'));
-  }
-};
-
-export const createActivity = (activityData) => async (dispatch) => {
-  try {
-    const { data } = await API.post('/activities', activityData);
-    dispatch(addActivity(data));
-  } catch (error) {
-    dispatch(setError(error.response?.data?.message || 'Failed to create activity'));
-  }
-};
-
+export const { clearError } = activitySlice.actions;
 export default activitySlice.reducer;
