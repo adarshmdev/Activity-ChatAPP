@@ -23,9 +23,23 @@ const getActivityById = async (id) => {
 };
 
 const joinActivity = async (activityId, userId) => {
-  const query = 'INSERT INTO activity_participants (activity_id, user_id) VALUES (?, ?)';
+  try {
+    const query = 'INSERT INTO activity_participants (activity_id, user_id) VALUES (?, ?)';
+    await db.execute(query, [activityId, userId]);
+    return { message: 'Successfully joined the activity' };
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return { message: 'You have already joined this activity', alreadyJoined: true };
+    }
+    throw err; 
+  }
+};
+
+const leaveActivity = async (activityId, userId) => {
+  const query = 'DELETE FROM activity_participants WHERE activity_id = ? AND user_id = ?';
   return db.execute(query, [activityId, userId]);
 };
+
 
 const getParticipants = async (activityId) => {
   const query = `
@@ -42,5 +56,6 @@ module.exports = {
   getAllActivities,
   getActivityById,
   joinActivity,
-  getParticipants
+  getParticipants,
+  leaveActivity
 };

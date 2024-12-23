@@ -80,15 +80,38 @@ const getActivities = async (req, res) => {
 const joinAnActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
-    const userId = req.user.id;
-    
-    await joinActivity(activityId, userId);
-    res.json({ message: 'Successfully joined activity' });
-  } catch (error) {
-    console.error('Join activity error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    const userId = req.user.id; 
+
+    const result = await joinActivity(activityId, userId);
+console.log("result", result)
+    if (result.alreadyJoined) {
+      return res.status(200).json({ message: result.message });
+    }
+
+    res.status(201).json({ message: result.message });
+  } catch (err) {
+    console.error('Error joining activity:', err);
+    res.status(500).json({ message: 'An error occurred while joining the activity' });
   }
 };
+
+const leaveAnActivity = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const userId = req.user.id; 
+
+    const result = await leaveActivity(activityId, userId);
+    if (result.affectedRows === 0) {
+      return res.status(400).json({ message: 'You have not joined this activity' });
+    }
+
+    res.status(200).json({ message: 'Successfully left the activity' });
+  } catch (err) {
+    console.error('Error leaving activity:', err);
+    res.status(500).json({ message: 'An error occurred while leaving the activity' });
+  }
+};
+
 
 const getActivityParticipants = async (req, res) => {
   try {
@@ -106,5 +129,6 @@ module.exports = {
   getActivities,
   joinAnActivity,
   getActivityParticipants,
+  leaveAnActivity,
   upload
 };
