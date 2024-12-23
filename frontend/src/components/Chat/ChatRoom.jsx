@@ -14,9 +14,10 @@ const ChatRoom = () => {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
+console.log("messages",messages)
   useEffect(() => {
     if (!loading && user) {
-      dispatch(fetchMessages()); 
+       dispatch(fetchMessages()); 
     }
     if (!user || loading || socketRef.current) return;
 
