@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import API from '../../api';
+import axios from 'axios';
 
 const ParticipantsList = ({ activityId }) => {
   const [participants, setParticipants] = useState([]);
@@ -11,8 +11,11 @@ const ParticipantsList = ({ activityId }) => {
     const fetchParticipants = async () => {
       try {
         setIsLoading(true);
-        const { data } = await API.get(`/activities/${activityId}/participants`);
-        setParticipants(data);
+        const response = await axios.get(
+          `http://localhost:5000/api/activities/${activityId}/participants`,
+          { withCredentials: true }
+        );
+        setParticipants(response.data);
         setError(null);
       } catch (error) {
         setError(error.response?.data?.message || 'Failed to fetch participants');
@@ -26,6 +29,7 @@ const ParticipantsList = ({ activityId }) => {
       fetchParticipants();
     }
   }, [activityId]);
+
 
   if (isLoading) {
     return <div className="p-4">Loading participants...</div>;

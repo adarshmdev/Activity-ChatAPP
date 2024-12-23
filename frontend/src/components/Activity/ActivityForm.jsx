@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createActivity } from '../../redux/activitySlice';
+import { createActivity } from '../../store/slices/activitySlice';
 
 const ActivityForm = () => {
   const dispatch = useDispatch();
@@ -25,14 +26,19 @@ const ActivityForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim() || !formData.description.trim()) {
       alert('Please fill in all fields');
       return;
     }
 
-    if (images.length < 3) {
-      alert('Please upload at least 3 images.');
+    if (images.length === 0) {
+      alert('Please upload at least one image.');
+      return;
+    }
+
+    if (images.length > 3) {
+      alert('Maximum 3 images allowed.');
       return;
     }
 
@@ -41,13 +47,22 @@ const ActivityForm = () => {
       const activityData = new FormData();
       activityData.append('title', formData.title.trim());
       activityData.append('description', formData.description.trim());
-      images.forEach((image) => activityData.append('images', image));
+      
+      // Append each image separately
+      images.forEach((image) => {
+        activityData.append('images', image);
+      });
 
-      await dispatch(createActivity(activityData)).unwrap();
-      setFormData({ title: '', description: '' });
-      setImages([]);
+      const result = await dispatch(createActivity(activityData)).unwrap();
+      
+      if (result) {
+        setFormData({ title: '', description: '' });
+        setImages([]);
+        alert('Activity created successfully!');
+      }
     } catch (err) {
       console.error('Failed to create activity:', err);
+      alert(err.message || 'Failed to create activity');
     } finally {
       setIsSubmitting(false);
     }
@@ -83,9 +98,14 @@ const ActivityForm = () => {
           className="block w-full mb-3 p-2 border rounded"
         />
         <div className="mb-3">
-          {images.length > 0 && <span>{images.length} images selected</span>}
+          {images.length > 0 && (
+            <span className="text-sm text-gray-600">
+              {images.length} image{images.length !== 1 ? 's' : ''} selected 
+              (Max 3 images allowed)
+            </span>
+          )}
         </div>
-        <button 
+        <button
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
           type="submit"
           disabled={isSubmitting}

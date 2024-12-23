@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { register } from '../../redux/authSlice';
+import { register } from '../../store/slices/authSlice';
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -13,29 +13,38 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   });
+  console.log("Register component is rendered");
+  console.log("formData",formData)
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+console.log("isSubmitting",isSubmitting)
   const handleChange = (e) => {
+    console.log("handleChange is called");
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    console.log("formData after change", formData);
   };
 
   const handleSubmit = async (e) => {
+    console.log("handleSubmit is called");
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
+      console.log("Passwords don't match");
       alert("Passwords don't match");
       return;
     }
 
     setIsSubmitting(true);
     try {
+      console.log("formData",formData);
       await dispatch(register(formData)).unwrap();
+      console.log("registration successful");
       navigate('/login');
     } catch (err) {
       console.error('Registration failed:', err);
     } finally {
       setIsSubmitting(false);
+      console.log("isSubmitting is set to false");
     }
   };
 

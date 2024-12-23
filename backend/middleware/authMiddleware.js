@@ -1,16 +1,22 @@
+
+
+
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) return res.status(401).json({ message: 'Unauthorized' });
+  const token = req.cookies?.token;
+console.log("token",token)
+console.log("req.cookies",req.cookies)
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized: Token not found' });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Store user data in request object
+    req.user = decoded; 
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token invalid' });
+    return res.status(401).json({ message: 'Token invalid or expired' });
   }
 };
 

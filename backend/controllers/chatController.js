@@ -1,23 +1,44 @@
 const { saveMessage, getAllMessages } = require('../models/chatModel');
 const io = require('../config/socket').getIO();
 
-const getChatMessages = (req, res) => {
-  getAllMessages((err, results) => {
-    if (err) return res.status(500).json({ message: 'DB Error' });
-    res.json(results);
-  });
+const getChatMessages = async (req, res) => {
+  try {
+    const messages = await getAllMessages();
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch messages',
+      error: error.message 
+    });
+  }
 };
 
 const handleChatSocket = (socket) => {
-  socket.on('newMessage', (data) => {
-    const { userId, message } = data;
-
-    saveMessage({ userId, message }, (err) => {
-      if (err) console.error(err);
-
-      // Emit the message to all clients
-      io.emit('message', { userId, message });
-    });
+  const user = socket.user;
+  console.log("sock user", user)
+  socket.on('send-message', async (messageData) => {
+    try {
+      const message = {
+        userId: user.id,
+        userName: user.name || 'Anonymous',
+        text: messageData.text,
+        timestamp: new Date().toISOString() 
+      };
+      
+      await saveMessage(message);
+      
+      const broadcastMessage = {
+        ...message,
+        timestamp: new Date(message.timestamp).toISOString()
+      };
+      
+      io.emit('chat-message', broadcastMessage);
+    } catch (error) {
+      console.error('Error handling message:', error);
+      socket.emit('error', { message: 'Failed to send message' });
+    }
   });
 };
 

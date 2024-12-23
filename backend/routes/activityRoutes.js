@@ -4,8 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Routes for activities
-router.get('/', getActivities);
+router.get('/', authMiddleware, getActivities);
 router.post('/create', authMiddleware, upload.array('images', 3), createNewActivity);
 router.post('/:activityId/join', authMiddleware, joinAnActivity);
 router.get('/:activityId/participants', authMiddleware, getActivityParticipants);

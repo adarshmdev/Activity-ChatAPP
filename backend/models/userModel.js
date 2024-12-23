@@ -1,16 +1,14 @@
 const db = require('../config/db');
 
-const createUser = (userData, callback) => {
+const createUser = async (userData) => {
   const { name, email, password } = userData;
-  db.query(
-    'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-    [name, email, password],
-    callback
-  );
+  const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+  return db.execute(query, [name, email, password]);
 };
 
-const findUserByEmail = (email, callback) => {
-  db.query('SELECT * FROM users WHERE email = ?', [email], callback);
+const findUserByEmail = async (email) => {
+  const query = 'SELECT * FROM users WHERE email = ?';
+  return db.execute(query, [email]);
 };
 
 module.exports = { createUser, findUserByEmail };

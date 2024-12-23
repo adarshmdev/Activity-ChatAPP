@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchActivities } from '../../redux/activitySlice';
+import { fetchActivities } from '../../store/slices/activitySlice';
 
 const ActivityList = () => {
   const dispatch = useDispatch();
