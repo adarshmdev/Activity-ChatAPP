@@ -44,14 +44,25 @@ const chatSlice = createSlice({
   },
   reducers: {
     addMessage: (state, action) => {
-      state.messages.push(action.payload);
+      // Normalize message structure
+      const normalizedMessage = {
+        ...action.payload,
+        message_text: action.payload.message_text || action.payload.text,
+        user_name: action.payload.user_name || action.payload.userName,
+      };
+      state.messages.push(normalizedMessage);
     },
     setMessages: (state, action) => {
-      state.messages = action.payload;
+      // Normalize entire messages array
+      state.messages = action.payload.map((msg) => ({
+        ...msg,
+        message_text: msg.message_text || msg.text,
+        user_name: msg.user_name || msg.userName,
+      }));
     },
     clearMessages: (state) => {
       state.messages = [];
-    }
+    },
   },
   extraReducers: (builder) => {
     builder

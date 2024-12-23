@@ -44,15 +44,14 @@ const login = async (req, res) => {
     }
 
     const user = users[0];
-    console.log("user", user)
     const isValidPassword = await bcrypt.compare(password, user.password);
     
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-
+console.log("user in login", user)
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -101,14 +100,13 @@ const checkAuthStatus = async (req, res) => {
         message: 'User not authenticated'
       });
     }
-
+console.log("user", user)
     res.json({
       isAuthenticated: true,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
       },
     });
   } catch (error) {

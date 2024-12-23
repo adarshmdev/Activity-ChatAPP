@@ -87,24 +87,25 @@ console.log("messages",messages)
     <div className="p-4 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Chat Room</h1>
       <div className="border rounded-lg p-4 h-[600px] flex flex-col">
-        <div className="flex-1 overflow-y-auto mb-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`mb-2 p-2 rounded ${
-                msg.userName === user.name ? 'bg-blue-100 ml-auto' : 'bg-gray-100'
-              }`}
-              style={{ maxWidth: '70%' }}
-            >
-              <div className="font-bold text-sm">{msg.userName}</div>
-              <div>{msg.text}</div>
-              <div className="text-xs text-gray-500">
-                {new Date(msg.timestamp).toLocaleTimeString()}
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
+      <div className="flex-1 overflow-y-auto mb-4">
+  {messages.map((msg, index) => (
+    <div
+      key={index}
+      className={`mb-2 p-2 rounded ${
+        msg.user_name === user.name ? 'bg-blue-100 ml-auto' : 'bg-gray-100'
+      }`}
+      style={{ maxWidth: '70%' }}
+    >
+      <div className="font-bold text-sm">{msg.user_name}</div>
+      <div>{msg.message_text}</div>
+      <div className="text-xs text-gray-500">
+        {new Date(msg.timestamp).toLocaleTimeString()}
+      </div>
+    </div>
+  ))}
+  <div ref={messagesEndRef} />
+</div>
+
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input
             type="text"
