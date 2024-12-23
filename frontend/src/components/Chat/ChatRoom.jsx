@@ -15,6 +15,9 @@ const ChatRoom = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
+    if (!loading && user) {
+      dispatch(fetchMessages()); 
+    }
     if (!user || loading || socketRef.current) return;
 
     console.log('Initializing socket connection...');
